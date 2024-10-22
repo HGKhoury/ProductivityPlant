@@ -159,7 +159,7 @@ bool buttonPressed = false;
 bool isProductive = true;
 
 unsigned long deepWorkStartTime;
-const unsigned long deepWorkPeriod = 5 * 1000; // 25 minutes in milliseconds
+const unsigned long deepWorkPeriod = 20 * 1000; // 25 minutes in milliseconds
 bool deepWorkPeriodRunning = false;
 
 
@@ -197,6 +197,7 @@ void setup(){
 void loop(){
   if (buttonPressed) {
     if (!breakRunning) {
+      Particle.publish("deepWorkStarted", "start");
         if (isProductive) {
             servoUpPosition();
             drawHappy();
@@ -220,6 +221,7 @@ void loop(){
         if (elapsedBreakTime <= breakPeriod) {
             // break time running
             celebrationWiggle();
+            Particle.publish("deepWorkStarted", "stop");
         }
         else {
             // break time over
@@ -311,6 +313,12 @@ void drawFrowny(void){
 
 // WEARABLE CODE
 
+/* 
+ * Project Productivity Plant Wearable
+ * Author: Hanna Khoury, Roopa Ramanujam
+ * Date: October 2024
+ */
+
 // #include <Wire.h>
 // #include <MPU6050.h>
 
@@ -327,9 +335,12 @@ void drawFrowny(void){
 
 // const int maxAcceptableNoiseLevel = 1000;
 
+// bool deepWork = false;
+
 // void calibrateSensor();
 // void setup();
 // void loop();
+// void deepWorkHandler(const char *event, const char *data);
 
 // void setup() {
 //     Serial.begin(9600);
@@ -351,6 +362,7 @@ void drawFrowny(void){
 
 //     // Calibrate the sensor when stationary
 //     calibrateSensor();
+//     Particle.subscribe("deepWorkStarted",deepWorkHandler);
 // }
 
 // void calibrateSensor() {
@@ -408,11 +420,12 @@ void drawFrowny(void){
 //         isStationary = true;
 //         Serial.println("Stationary");
 //     }
-
-//     if (!isStationary || soundLevel > maxAcceptableNoiseLevel) {
-//         Particle.publish("isProductive", "no");
-//         delay(10 * 1000);
-//     }
+//     if (deepWork){
+//       if (!isStationary || soundLevel > maxAcceptableNoiseLevel) {
+//           Particle.publish("isProductive", "no");
+//           delay(10 * 1000);
+//       }
+//     } 
 
 //     // Debugging - Print raw and filtered values
 //     Serial.print("Ax: "); Serial.print(ax_filtered);
@@ -421,4 +434,12 @@ void drawFrowny(void){
 //     Serial.print(" | Total Acceleration: "); Serial.println(totalAcceleration);
 
 //     delay(500);  // Small delay before the next reading
+// }
+// void deepWorkHandler(const char *event, const char *data){
+//   if (strcmp(data, "start") == 0){
+//     deepWork = true;
+//   }
+//   else if (strcmp(data, "stop") == 0){
+//     deepWork = false;
+//   }
 // }
